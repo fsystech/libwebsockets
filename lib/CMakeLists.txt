@@ -144,8 +144,6 @@ list(APPEND LWS_LIB_BUILD_INC_PATHS_TEMP ${CMAKE_CURRENT_SOURCE_DIR}/system)
 list(APPEND LWS_LIB_BUILD_INC_PATHS_TEMP ${CMAKE_CURRENT_SOURCE_DIR}/media)
 add_subdirectory(core)
 add_subdirectory(misc)
-add_subdirectory(media)
-
 if (LWS_WITH_TRANSCODE)
 	set_source_files_properties(media/transcode/transcode.c PROPERTIES COMPILE_FLAGS "-Wno-conversion -Wno-sign-conversion")
 endif()
@@ -239,6 +237,8 @@ endif()
 
 list(APPEND LWS_LIB_BUILD_INC_PATHS_TEMP ${CMAKE_CURRENT_SOURCE_DIR}/secure-streams/serialized/client)
 add_subdirectory(secure-streams/serialized/client)
+
+add_subdirectory(media)
 
 if (LWS_WITH_STATIC)
     if (LWS_STATIC_PIC)

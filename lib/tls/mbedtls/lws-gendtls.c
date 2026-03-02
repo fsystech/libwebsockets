@@ -226,7 +226,11 @@ bail:
 int
 lws_gendtls_handshake_done(struct lws_gendtls_ctx *ctx)
 {
+#if defined(MBEDTLS_VERSION_NUMBER) && MBEDTLS_VERSION_NUMBER >= 0x03000000
 	return mbedtls_ssl_is_handshake_over(&ctx->ssl);
+#else
+	return ctx->ssl.MBEDTLS_PRIVATE(state) == MBEDTLS_SSL_HANDSHAKE_OVER;
+#endif
 }
 
 void
@@ -263,8 +267,11 @@ lws_gendtls_set_key_mem(struct lws_gendtls_ctx *ctx, const uint8_t *key, size_t 
 	int ret;
 
 	if ((ret = mbedtls_pk_parse_key(&ctx->pkey, (const unsigned char *)key, len,
-				 NULL, 0,
-				 mbedtls_ctr_drbg_random, &ctx->ctr_drbg)) != 0) {
+				 NULL, 0
+#if defined(MBEDTLS_VERSION_NUMBER) && MBEDTLS_VERSION_NUMBER >= 0x03000000
+				 , mbedtls_ctr_drbg_random, &ctx->ctr_drbg
+#endif
+	)) != 0) {
 		printf("mbedtls_pk_parse_key failed: -0x%x\n", -ret);
 		return -1;
 	}
@@ -367,6 +374,7 @@ lws_gendtls_export_keying_material(struct lws_gendtls_ctx *ctx, const char *labe
 				   size_t label_len, const uint8_t *context,
 				   size_t context_len, uint8_t *out, size_t out_len)
 {
+#if defined(LWS_HAVE_mbedtls_ssl_export_keying_material)
 	int use_context = (context != NULL);
 
 	if (mbedtls_ssl_export_keying_material(&ctx->ssl, out, out_len,
@@ -376,6 +384,18 @@ lws_gendtls_export_keying_material(struct lws_gendtls_ctx *ctx, const char *labe
 		return -1;
 
 	return 0;
+#else
+	(void)ctx;
+	(void)label;
+	(void)label_len;
+	(void)context;
+	(void)context_len;
+	(void)out;
+	(void)out_len;
+
+	lwsl_err("%s: requires MBEDTLS_SSL_EXPORT_KEYS\n", __func__);
+	return -1;
+#endif
 }
 
 int
