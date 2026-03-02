@@ -357,9 +357,6 @@ verb_sign_req_handler(struct lws_dht_ctx *ctx, const struct lws_dht_msg *msg,
 	return 0;
 }
 
-	return 0;
-}
-
 /* --- Core Callback --- */
 
 static void
@@ -564,6 +561,7 @@ callback_dht_object_store(struct lws* wsi, enum lws_callback_reasons reason,
 			sul_get_cb(vhd);
 		}
 		break;
+	}
 
 	case LWS_CALLBACK_PROTOCOL_DESTROY:
 		if (vhd) {
